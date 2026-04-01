@@ -1,0 +1,35 @@
+{
+  "name": "claude-playwright-toolkit",
+  "version": "1.0.0",
+  "description": "Claude Code commands and MCP config for Playwright-based E2E testing via your existing browser",
+  "type": "module",
+  "bin": {
+    "claude-playwright-setup": "./bin/setup.mjs"
+  },
+  "files": [
+    "bin/",
+    "lib/",
+    "templates/"
+  ],
+  "scripts": {
+    "postinstall": "echo '\\n  Run: npx claude-playwright-setup\\n  to set up Claude Playwright commands in your project.\\n'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anthropic-toolkit/claude-playwright-toolkit.git"
+  },
+  "keywords": [
+    "claude",
+    "claude-code",
+    "playwright",
+    "mcp",
+    "e2e",
+    "testing",
+    "browser",
+    "qa"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  }
+}
