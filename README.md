@@ -1,74 +1,54 @@
 # claude-playwright-toolkit
 
-Gives Claude Code the ability to test your web app in your real browser — no test files needed.
+One command to give Claude Code full browser testing powers in any project.
 
-Installs Playwright MCP server config and Claude Code commands (`/e2e-test`, `/e2e-screenshot`, `/e2e-report`) into any project.
+Connects to your real Chrome browser — no new browser, no auth issues, no test files in your repo.
 
-## How it works
+## What it sets up
 
-1. You launch Chrome with remote debugging enabled
-2. Claude Code connects to your browser via the Playwright MCP server
-3. You use slash commands to tell Claude to navigate, click, test, and screenshot your app
-4. Claude sees your actual logged-in session — no auth setup needed
+| File | Purpose |
+|------|---------|
+| `.mcp.json` | Playwright MCP server (merges with existing) |
+| `.claude/commands/e2e-test.md` | `/e2e-test` — interactive browser testing |
+| `.claude/commands/e2e-screenshot.md` | `/e2e-screenshot` — capture page screenshots |
+| `.claude/commands/e2e-report.md` | `/e2e-report` — full visual QA report |
+| `.claude/settings.json` | Auto-allow all 22 playwright + common dev permissions |
+| `.gitignore` | Adds `.playwright-mcp/` |
 
 ## Install
 
-### Option A: npm install (for shared/public use)
+### Option A: Local link (no npm, recommended)
 
 ```bash
-# From GitHub
-npm install --save-dev github:YOUR_USERNAME/claude-playwright-toolkit
+git clone https://github.com/YOUR_USERNAME/claude-playwright-toolkit.git ~/claude-playwright-toolkit
 
-# Run setup
+# Link into any project (symlinks commands, merges configs)
+~/claude-playwright-toolkit/link.sh
+~/claude-playwright-toolkit/link.sh /path/to/another/repo
+```
+
+Commands are **symlinked** — edit once in the toolkit, applies everywhere.
+
+### Option B: npm install (for teams)
+
+```bash
+npm install --save-dev github:YOUR_USERNAME/claude-playwright-toolkit
 npx claude-playwright-setup
 ```
 
-### Option B: Local use without install (recommended for personal use)
+Commands are **copied** — each project gets its own files.
 
-If you also use [claude-config](https://github.com/YOUR_USERNAME/claude-config), just run:
-
-```bash
-~/vim/claude-config/link.sh
-```
-
-This symlinks commands + merges MCP config + adds permissions — no npm install needed.
-
-Or run the toolkit CLI directly with node:
-
-```bash
-node /path/to/claude-playwright-toolkit/bin/setup.mjs --base-url http://localhost:3000
-```
-
-## Setup Options
+## Setup options (npm mode)
 
 ```bash
 npx claude-playwright-setup [options]
 
-Options:
-  --base-url <url>    Base URL of your app (default: http://localhost:3000)
-  --cdp-port <port>   Chrome DevTools Protocol port (default: 9222)
-  --pages <json>      JSON array of pages to test
-  --force             Overwrite existing command files
-  --dry-run           Show what would change without writing
+  --base-url <url>    Base URL (default: http://localhost:3000)
+  --cdp-port <port>   Chrome debug port (default: 9222)
+  --pages <json>      Pages to test: '[{"name":"Home","path":"/"}]'
+  --force             Overwrite existing files
+  --dry-run           Preview changes
 ```
-
-### Custom pages example
-
-```bash
-npx claude-playwright-setup \
-  --base-url http://localhost:5173 \
-  --pages '[{"name":"Dashboard","path":"/dashboard"},{"name":"Settings","path":"/settings"}]'
-```
-
-## What it creates
-
-| File | Purpose |
-|------|---------|
-| `.mcp.json` | Playwright MCP server config (merges with existing) |
-| `.claude/commands/e2e-test.md` | `/e2e-test` — interactive browser testing |
-| `.claude/commands/e2e-screenshot.md` | `/e2e-screenshot` — capture page screenshots |
-| `.claude/commands/e2e-report.md` | `/e2e-report` — full visual QA report |
-| `.gitignore` | Adds `.playwright-mcp/` entry |
 
 ## Usage
 
@@ -78,36 +58,72 @@ npx claude-playwright-setup \
 # macOS
 /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --remote-debugging-port=9222
 
-# Linux
-google-chrome --remote-debugging-port=9222
+# Or use the included helper
+~/claude-playwright-toolkit/scripts/chrome-debug.sh
 ```
 
-### 2. Log in to your app in that Chrome window
+### 2. Log in to your app in that Chrome
 
-### 3. Restart Claude Code (so MCP server connects)
+### 3. Restart Claude Code
 
 ### 4. Use the commands
 
 ```
-/e2e-test          # Test all pages
-/e2e-test /login   # Test a specific page
-/e2e-screenshot    # Capture all pages
-/e2e-report        # Full QA report with mobile + desktop
+/e2e-test                    # Test all pages
+/e2e-test /dashboard         # Test specific page
+/e2e-screenshot              # Capture all pages
+/e2e-report                  # Full QA report (desktop + mobile)
 ```
 
-Claude will control your actual browser — navigating pages, clicking elements, filling forms, and taking screenshots as evidence.
+Claude controls your actual browser — navigates, clicks, fills forms, takes screenshots.
 
-## Updating
+## Repo structure
 
-To refresh commands after a toolkit update:
+```
+claude-playwright-toolkit/
+├── bin/setup.mjs                  # CLI: npx claude-playwright-setup
+├── link.sh                        # Local linker (no npm needed)
+├── lib/
+│   ├── merge-mcp-config.mjs
+│   ├── copy-commands.mjs
+│   ├── merge-settings.mjs
+│   └── update-gitignore.mjs
+├── templates/
+│   ├── commands/
+│   │   ├── e2e-test.md
+│   │   ├── e2e-screenshot.md
+│   │   └── e2e-report.md
+│   ├── settings/
+│   │   ├── playwright-permissions.json
+│   │   └── common-permissions.json
+│   └── mcp.json
+├── scripts/
+│   └── chrome-debug.sh
+├── package.json
+└── README.md
+```
+
+## Shell alias (optional)
 
 ```bash
-npx claude-playwright-setup --force
+# Add to ~/.zshrc
+alias claude-pw="~/claude-playwright-toolkit/link.sh"
+alias chrome-debug="~/claude-playwright-toolkit/scripts/chrome-debug.sh"
 ```
 
-## Related
+Then: `cd any-project && claude-pw`
 
-- **[claude-config](https://github.com/YOUR_USERNAME/claude-config)** — Centralized Claude Code config folder. Includes this toolkit's commands + MCP + permissions. One `link.sh` to set up any project without npm install.
+## Unlink
+
+```bash
+~/claude-playwright-toolkit/link.sh --unlink
+```
+
+## Update commands in linked projects
+
+Just edit the templates in this repo — symlinked projects pick up changes instantly.
+
+For npm-installed projects: `npx claude-playwright-setup --force`
 
 ## License
 

@@ -1,6 +1,6 @@
 {
   "name": "claude-playwright-toolkit",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Claude Code commands and MCP config for Playwright-based E2E testing via your existing browser",
   "type": "module",
   "bin": {
@@ -9,7 +9,9 @@
   "files": [
     "bin/",
     "lib/",
-    "templates/"
+    "templates/",
+    "scripts/",
+    "link.sh"
   ],
   "scripts": {
     "postinstall": "echo '\\n  Run: npx claude-playwright-setup\\n  to set up Claude Playwright commands in your project.\\n'"

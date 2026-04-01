@@ -2,6 +2,7 @@
 
 import { mergeMcpConfig } from "../lib/merge-mcp-config.mjs";
 import { copyCommands } from "../lib/copy-commands.mjs";
+import { mergeSettings } from "../lib/merge-settings.mjs";
 import { updateGitignore } from "../lib/update-gitignore.mjs";
 import { resolve } from "path";
 
@@ -29,6 +30,14 @@ if (hasFlag("help") || hasFlag("h")) {
     --force             Overwrite existing command files
     --dry-run           Show what would be changed without writing
     --help              Show this help message
+
+  What it sets up:
+    .mcp.json                         Playwright MCP server (CDP mode)
+    .claude/commands/e2e-test.md      /e2e-test command
+    .claude/commands/e2e-screenshot.md /e2e-screenshot command
+    .claude/commands/e2e-report.md    /e2e-report command
+    .claude/settings.json             Auto-allow all playwright + common permissions
+    .gitignore                        Adds .playwright-mcp/
 
   Examples:
     npx claude-playwright-setup
@@ -68,10 +77,12 @@ const config = { projectRoot, baseUrl, cdpPort, pages, force, dryRun };
 
 mergeMcpConfig(config);
 copyCommands(config);
+mergeSettings(config);
 updateGitignore(config);
 
 console.log(`\n  Done! Next steps:`);
-console.log(`  1. Launch Chrome with: google-chrome --remote-debugging-port=${cdpPort}`);
-console.log(`     Or on macOS: /Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome --remote-debugging-port=${cdpPort}`);
-console.log(`  2. Restart Claude Code to pick up the new MCP config`);
-console.log(`  3. Use /e2e-test, /e2e-screenshot, or /e2e-report commands\n`);
+console.log(`  1. Launch Chrome with remote debugging:`);
+console.log(`     /Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome --remote-debugging-port=${cdpPort}`);
+console.log(`  2. Log in to your app at ${baseUrl}`);
+console.log(`  3. Restart Claude Code to pick up the MCP config`);
+console.log(`  4. Use /e2e-test, /e2e-screenshot, or /e2e-report commands\n`);

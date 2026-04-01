@@ -1,0 +1,19 @@
+{
+  "_comment": "Common dev permissions shared across all projects",
+  "permissions": {
+    "allow": [
+      "Bash(npm run:*)",
+      "Bash(npm install:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx vite:*)",
+      "Bash(npx tailwindcss:*)",
+      "Bash(git status:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git checkout:*)",
+      "Bash(git reset:*)",
+      "Bash(gh pr:*)",
+      "WebFetch(domain:github.com)"
+    ]
+  }
+}
