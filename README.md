@@ -13,12 +13,30 @@ Installs Playwright MCP server config and Claude Code commands (`/e2e-test`, `/e
 
 ## Install
 
+### Option A: npm install (for shared/public use)
+
 ```bash
 # From GitHub
 npm install --save-dev github:YOUR_USERNAME/claude-playwright-toolkit
 
-# Then run setup
+# Run setup
 npx claude-playwright-setup
+```
+
+### Option B: Local use without install (recommended for personal use)
+
+If you also use [claude-config](https://github.com/YOUR_USERNAME/claude-config), just run:
+
+```bash
+~/vim/claude-config/link.sh
+```
+
+This symlinks commands + merges MCP config + adds permissions — no npm install needed.
+
+Or run the toolkit CLI directly with node:
+
+```bash
+node /path/to/claude-playwright-toolkit/bin/setup.mjs --base-url http://localhost:3000
 ```
 
 ## Setup Options
@@ -86,6 +104,10 @@ To refresh commands after a toolkit update:
 ```bash
 npx claude-playwright-setup --force
 ```
+
+## Related
+
+- **[claude-config](https://github.com/YOUR_USERNAME/claude-config)** — Centralized Claude Code config folder. Includes this toolkit's commands + MCP + permissions. One `link.sh` to set up any project without npm install.
 
 ## License
 
