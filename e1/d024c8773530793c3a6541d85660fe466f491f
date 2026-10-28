@@ -1,0 +1,69 @@
+templates/commands/daily-report.md
+  s_9f9cd82206ceab::t_c6aa38b3860c2e 278-279
+  s_d17b119235f975::t_7235f4eedc6520 346
+  s_9f9cd82206ceab::t_2ee34b1e777d98 225
+  s_9f9cd82206ceab::t_71cef6b10db79f 159
+  s_d17b119235f975::t_0bd5e6cf791ceb 329-334
+  s_b657f30a71d279::t_2ecb165db089f9 156
+  s_9f9cd82206ceab::t_6f4ddeb18b2851 277
+  s_b657f30a71d279::t_13ed897e209bee 51,53
+  s_9f9cd82206ceab::t_90ccde72fd2fad 272-276,280
+  s_9f9cd82206ceab::t_73213759cea709 79
+  s_9f9cd82206ceab::t_f685daa7887748 236-237
+  s_b657f30a71d279::t_96d6415910333d 180-183,185-186
+  s_4764ef235a2c78::t_c154cef7c32d33 119-140,261,304-305,337-338
+  s_9f9cd82206ceab::t_835911bd22e750 107
+  s_0ca77c577b753e::t_0f16d9dedb4df8 292
+  s_b657f30a71d279::t_017401b3de782b 13,15-16,18,20-27,30-50,52,54-58,61-71
+  s_d17b119235f975::t_c41dc2d4a5543f 145
+  s_9f9cd82206ceab::t_e98f7edf1db5e8 73-78,80
+  s_4764ef235a2c78::t_99e049ba3b86c5 7-9,72,83,85,87,89,92,94,97,99,103,105-106,108-118,141-144,146-147,151,153-154,157,160-166,196-198,200-205,207-209,211,217,230-235,238-251,259,262-271,281-284,287,291,293-303,306-328,335-336,339-345,347-365,369,371,399,403-407,412-418,421-430
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "e1d024c8773530793c3a6541d85660fe466f491f",
+  "prompts": {},
+  "sessions": {
+    "s_0ca77c577b753e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b65a5ae5-3816-4957-ba3d-59aa4ab9910e",
+        "model": "claude-fable-5"
+      },
+      "human_author": "VinhTran <vinhtran@everfit.io>"
+    },
+    "s_4764ef235a2c78": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "95fa341a-4ffe-49d1-9c2f-740897b71461",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "VinhTran <vinhtran@everfit.io>"
+    },
+    "s_9f9cd82206ceab": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "83ec0c7a-9c1f-406d-8e6e-eefad9478a59",
+        "model": "claude-fable-5"
+      },
+      "human_author": "VinhTran <vinhtran@everfit.io>"
+    },
+    "s_b657f30a71d279": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "c54b3dbe-44ed-4236-a1a0-3290e55f9d9b",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "VinhTran <vinhtran@everfit.io>"
+    },
+    "s_d17b119235f975": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "369371a9-35ee-43f0-a36a-110ec973e33f",
+        "model": "claude-fable-5"
+      },
+      "human_author": "VinhTran <vinhtran@everfit.io>"
+    }
+  }
+}
