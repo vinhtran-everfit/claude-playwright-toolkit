@@ -1,0 +1,66 @@
+templates/commands/log-work.md
+  s_ae7f3ef2d00bbc::t_9e56ba10b4f146 1-144
+templates/commands/daily-report.md
+  s_ebab78b598edae::t_9303582335c151 206-218,224
+  s_ae7f3ef2d00bbc::t_1a89aa639115e4 7-9,137-138,151,332,334
+  s_ebab78b598edae::t_03bc8e364174bd 197-199
+  s_ebab78b598edae::t_5729928de7962b 159,178,180,279,291,326-327
+Docs/openmemory-local-stack.md
+  s_8b1b2ee33c08f4::t_1121e66abe4f7a 1-99
+Docs/openmemory-runbook.md
+  s_8b1b2ee33c08f4::t_d8d0b9279fd430 1-53
+templates/commands/design-doc.md
+  s_91a6bf598243b9::t_db3276c94b0b30 14-16
+  s_91a6bf598243b9::t_90cb9708e928ed 50-51,54-56
+  s_91a6bf598243b9::t_da2fdb2f76b746 224
+  s_91a6bf598243b9::t_c69b8caaac732b 120
+  s_91a6bf598243b9::t_14892bca4cddf2 213
+  s_91a6bf598243b9::t_4fdb3ff2119a60 1-13,17-49,52-53,57-119,121-206,208-212,214-223,225-226
+  s_91a6bf598243b9::t_83d9de632cb5db 207
+.mcp.json
+  s_91a6bf598243b9::t_a6e0d66c452f8b 5
+templates/commands/create-ticket.md
+  s_91a6bf598243b9::t_4f0668359231cf 1-210
+templates/commands/plan-ticket.md
+  s_91a6bf598243b9::t_efe7d9fd64e072 1-156
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "11537b470719cd77bda5da988e07be3862e09de1",
+  "prompts": {},
+  "sessions": {
+    "s_8b1b2ee33c08f4": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7e36d241-1c04-47bf-9495-ef86c1c365b3",
+        "model": "claude-fable-5"
+      },
+      "human_author": "VinhTran <vinhtran@everfit.io>"
+    },
+    "s_91a6bf598243b9": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "5b994331-df5f-4cb8-974c-a785da6cb7b9",
+        "model": "claude-fable-5"
+      },
+      "human_author": "VinhTran <vinhtran@everfit.io>"
+    },
+    "s_ae7f3ef2d00bbc": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d4600b69-b055-4f60-b0c0-aa8d7fb00580",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "VinhTran <vinhtran@everfit.io>"
+    },
+    "s_ebab78b598edae": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d9d1238a-cb9d-47ca-a526-128fe6cb60aa",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "VinhTran <vinhtran@everfit.io>"
+    }
+  }
+}
