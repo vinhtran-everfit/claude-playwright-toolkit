@@ -4,7 +4,9 @@ Input: $ARGUMENTS (optional: notes about what you did/plan to do, or a Slack cha
 
 ## Instructions
 
-This flow: **Gather Git → Gather Jira → Check Calendar → Build Report → Preview to DM → Send to channel/thread → Log Jira Worklogs (time spent per ticket) → Log HRM Workload (today + tomorrow)**
+This flow: **Gather Git → Gather Jira → Check Calendar → Build Report → Preview to DM → Send to channel/thread → Log HRM Workload (today + tomorrow)**
+
+> **Jira worklogs are NOT part of this flow** (Vinh, 5 Nov 2026: "daily report not relates logwork, logwork should be another bot"). The report's `Spent` lines stay — managers read them — but nothing is logged to Jira here. The **Logwork bot** owns that with `/log-work`: it reads the whole month from Jira, finds the days that are missing or short, and plans what to log from the posted reports, calendar and git.
 
 > **Always check the calendar BEFORE estimating time.** The day is 8h. Meetings come off the top, and the remaining hours are what you split across tasks. Estimating ETAs without knowing the meeting load produces totals that don't add up to 8h — see Step 2.5 and the totals rules below.
 
@@ -132,6 +134,8 @@ Since early Oct 2026 the AI team files **QA bugs and small fixes in Linear**, no
 
 **Ownership rule for Linear (replaces the JQL assignee check):** a Linear card is Vinh's only if (a) his commit/PR carries the key, or (b) he claimed it in his ownership summary, or (c) the Linear bot assigned it to him. Cards he merely triaged to BE/AI (e.g. "No5 → BE") are NOT his and never appear as his DONE/PLAN lines — at most they appear in his triage line ("Triaged the 11 staging issues with QA — confirmed FE/AI/BE ownership").
 
+**Verify every Linear key before it goes in the report (mandatory, PLAN included).** Call `get_issue` for each AIP key and check `status` and `assignee`. A card that is `Done`/`Canceled`, or assigned to someone else, never appears in DONE or PLAN — no matter what a branch or worktree is named. A worktree like `bi-dashboard-wt-aip800` is NOT evidence the card is open or Vinh's: on 2 Nov 2026 AIP-800 (Done 21 Oct, assignee Viet Mai BE) was put in PLAN from the worktree name alone and the report had to be corrected after posting ("wtf AIP-800 done bro?").
+
 **Reporting Linear work:**
 - Several QA bugs fixed in **one PR** go on **one line**: `<AIP-760> / <AIP-761> / <AIP-762> / <AIP-763> QA 5 Oct FE bugs — <what the coach sees fixed> — fixed, merged to release · Spent … · <commit links>`.
 - Keep the Jira epic as the feature header (`**Check-in Dashboard v2** (<AIT-5315>)`); Linear lines sit under it next to Jira story lines.
@@ -144,7 +148,7 @@ Use `mcp__claude_ai_Google_Calendar__list_events` for today (`startTime`/`endTim
 
 - **Count** as meetings: AI DSU (count as **45m** — it runs 08:45–09:30 even though the calendar block shows 30m), Payment grooming/sprint review/release meetings, demos, technical alignment, interviews, retros. Do NOT count the Payment daily meeting — Vinh doesn't attend it (as of Jul 2026).
 - **Skip** (never count): Deep work / "nín time", all-day reminders, declined events, after-hours social.
-- Sum the counted meetings → this is the meeting load. `dev_hours = 8h − meeting_load`. The PLAN ETAs must sum to `dev_hours`, and the PLAN total line must show meetings explicitly (see formatting rules). This makes the day visibly add up to 8h and keeps the report consistent with the Jira worklog step.
+- Sum the counted meetings → this is the meeting load. `dev_hours = 8h − meeting_load`. The PLAN ETAs must sum to `dev_hours`, and the PLAN total line must show meetings explicitly (see formatting rules). This makes the day visibly add up to 8h and gives the Logwork bot (`/log-work`) consistent Spent lines to log from later.
 
 ### Step 3: Build the report
 
@@ -152,7 +156,7 @@ The report has **4 sections**: DONE, PROGRESS CHANGED, PLAN FOR TODAY, BLOCKER.
 
 **DONE section** — only tickets in terminal/passing states:
 - Include tickets with status: `QA Success`, `BA Success`, `Done`, `Released`
-- Match commits from yesterday (or last week if Monday) to their Jira tickets
+- Match commits from the **unreported days only** — yesterday, or on Monday just Friday (+ weekend work, if any). Mon–Thu were already reported in their own daily reports; never re-report them.
 - **Don't let commit count set the hour split.** CID v2's UI is mostly built (as of late Sep 2026); its daily work is small QA polish and API wiring — cap it around **≤3h** unless a genuinely large feature merged that day. PTC 2.0 connector work (Sheets, Loom, Notion, workout templates, AG-UI) is the main daily focus and usually leaves **no commits** — give it **≈3h+** from Step 1.5 evidence. Vinh has corrected this twice ("most of UI already implement, why do every day?"); default the split toward PTC without being told.
 - Always show the actual Jira status as a backtick tag (e.g., `QA Success`, `BA Success`)
 - Use non-technical language — describe what was done, not how
@@ -171,8 +175,9 @@ The report has **4 sections**: DONE, PROGRESS CHANGED, PLAN FOR TODAY, BLOCKER.
 - Add `:loading:` for in-progress items
 
 **Date rules:**
-- If Monday: header = `DONE LAST WEEK`, date = today's date
+- If Monday: header = `DONE LAST WEEK` _(Fri DD Mon)_, date = today's date. **DONE covers only the days not yet reported — normally just Friday (plus any weekend work).** Mon–Thu were each covered by their own daily report (Tue's report covers Mon, …, Fri's report covers Thu), so re-listing the whole week double-reports and inflates the total. Vinh, 1 Nov 2026: "last is only friday, because friday is reported by fri."
 - If other day: header = `DONE YESTERDAY`, date = today's date
+- **Cutoff check (every day, mandatory):** search Slack for Vinh's most recent `DAILY REPORT` in #ai-product-team (`from:<@U0A0ANCKWQJ> "DAILY REPORT"`), read which day its DONE section covered, and report everything *after* that day. After an OOO day or a skipped report the gap is wider than one day — cover it all (e.g. 26 Oct 2026 covered Thu 22 + weekend because Fri 23 was OOO).
 
 **Team mapping:**
 | Repo / Jira Project | Team | Emoji | Feature examples |
@@ -189,18 +194,34 @@ The report has **4 sections**: DONE, PROGRESS CHANGED, PLAN FOR TODAY, BLOCKER.
 
 Send the formatted report to user's Slack DM (user_id: `U0A0ANCKWQJ`) using `slack_send_message`.
 
+- The DM is the **exact full report text** (the same text that will be posted): header, Name, Platform, all 4 sections, totals, signature. **Never a shortened summary, intro line or "preview of…" wrapper** (6 Nov 2026: a hand-written summary was DM'd instead of the report).
+- Inside vimdevtool: run `vdt report lint --date <report date>` until it says format OK, then `vdt report dm` (sends slack-report.json verbatim, skips when unchanged). Do not call `slack_send_message` yourself for the preview there.
+
 Then ask:
 > Sent preview to your DM. Check the format and let me know if you want to adjust anything.
 > When ready, tell me which Slack channel to send it to.
 
 ### Step 5: Send to channel or thread (only after user approval)
 
-Once the user approves and provides a destination:
+Once the user approves ("send", "sent it", "sent AI report"…):
+
+**Default destination: the right Daily Report thread (no link needed).** The report dated **D** goes in **#ai-product-team (C052Z30TQ13)** as a reply to the parent posted by the *Daily Report* bot (B07HPE83EP2, "Please post your daily report at here…") at **17:30 on the previous work day of D**: Tue–Fri → the day before, **Mon → Friday** (the bot posts no weekend threads). Examples: 03 Nov (Tue) → Mon 02 Nov 17:30 thread `1793615417.298149`; 02 Nov (Mon) → Fri 30 Oct 17:30 thread `1793356217.373009`.
+- Find it with `slack_read_channel` on C052Z30TQ13 with `oldest` = previous work day 00:00 +07 and `latest` = D 00:00 +07, and pick the bot's 17:30 parent from that window. **Never reuse the thread of Vinh's last report and never take "the latest thread" blindly**: on 3 Nov 2026 the 03 Nov report was first posted into the 30 Oct thread and had to be deleted by hand (Vinh: "sent failed date target").
+- #payment-product-core-and-mp (C09BEGH6HSL) gets a copy only when Vinh asks for it; its thread follows the same date rule.
+
+**Pre-send guard (all must pass, otherwise STOP and ask Vinh, do not post):**
+1. The header date `DAILY REPORT — DD Mon YYYY` equals D, and the thread parent's date equals the previous work day of D (convert the parent ts to +07 and compare the day, not just "recent").
+2. Vinh has no post in that thread yet (`slack_read_thread`). If he does, ask whether to post a correction instead of a second copy.
+3. The numbers add up: the DONE Spent lines (dev + review) plus meetings equal the stated DONE total, and the PLAN ETAs plus meetings equal the stated PLAN total. Recompute them; never send totals that don't match their lines.
+4. The text is the exact text Vinh approved in the DM preview (same version), with the `*Sent using* @Kurōvim` signature written as `**Sent using** @Kurōvim` in the markdown so Slack renders it bold, not italic.
+
+After posting, read the thread back, confirm the message is there under the right parent, and return its permalink.
 
 **If user provides a Slack URL (thread link):**
 - Parse `channel_id` and `thread_ts` from the URL
 - URL format: `https://everfitt.slack.com/archives/{channel_id}/p{ts_no_dot}?thread_ts={parent_ts}`
 - Use `slack_send_message` with both `channel_id` and `thread_ts` to reply in-thread
+- Still run the pre-send guard: if the link's parent date doesn't match the date rule above, say so and ask before posting.
 
 **If user provides a channel name:**
 1. Use `slack_search_channels` to find the channel ID
@@ -255,7 +276,7 @@ Use **standard markdown** (NOT Slack mrkdwn, NOT code blocks). The Slack MCP too
 ### Formatting rules
 
 - Date format: `DD Mon YYYY` (e.g., `03 Apr 2026`)
-- If Monday: use `DONE LAST WEEK` instead of `DONE YESTERDAY`
+- If Monday: use `DONE LAST WEEK` _(Fri DD Mon)_ instead of `DONE YESTERDAY` — content is Friday (+ weekend) only, see Date rules
 - Headers, Team + Feature names: **bold** with `**...**` (standard markdown, NOT `*...*` which renders as italic)
 - Jira tickets: clickable links `<https://everfit.atlassian.net/browse/AIT-3046|AIT-3046>`
 - Linear tickets: clickable links `<https://linear.app/everfit/issue/AIP-760|AIP-760>` — same inline style; several AIP keys fixed in one PR share one line separated by ` / `
@@ -267,7 +288,7 @@ Use **standard markdown** (NOT Slack mrkdwn, NOT code blocks). The Slack MCP too
   - **Estimate honestly — never inflate a ticket's hours to reach 8h.** If honest estimates fall short, pull in another real To Do/Q&A ticket (prefer one related to the day's theme). Give "Fix bugs from QA" a generous block (~2h), not a token amount.
   - No-ticket work is allowed (e.g. release handling, cross-team coordination) — tag it (e.g. `AI To Do`) and give it an ETA.
 - **Section totals (required).** Each section ends with an italic total line so the day visibly adds up:
-  - DONE → `_Total spent: \`8h\`_`. **A normal working day is 8h — do NOT inflate. Default the DONE total to 8h** (per Vinh: "yesterday just 8h"). On Monday, DONE LAST WEEK still summarizes to ~8h unless Vinh says otherwise; allocate per-task spent so they sum to the total.
+  - DONE → `_Total spent: \`8h\`_`. **A normal working day is 8h — do NOT inflate. Default the DONE total to 8h** (per Vinh: "yesterday just 8h"). On Monday, DONE LAST WEEK is Friday only, so it is still one 8h day (plus weekend hours only if Vinh actually worked them); allocate per-task spent so they sum to the total. A 40h Monday total is a bug.
   - PLAN → `_Total ETA: \`<dev>\` + meetings \`<meeting_load>\` (<meeting names>) = \`8h\`_`. The dev ETAs + the meeting load MUST equal 8h. Pull the meeting load and names from Step 2.5 (the calendar).
 - **Inline commit link (required — managers need the code evidence).** Every ticket in **DONE** and every `In Progress`/`In Review` ticket in **PROGRESS CHANGED** ends with its code link(s) from the Step 1 commit map, appended after the Spent/ETA part with ` · `. The **label is just the short commit hash** — no PR number in the text — but the URL still opens that commit **inside its PR** so the reviewer keeps PR context:
   - Link format: `<https://github.com/Everfit-io/<repo>/pull/<N>/commits/<sha>|<short-sha>>` — e.g. `<https://github.com/Everfit-io/bi-dashboard/pull/800/commits/126de7f2|126de7f2>`
@@ -302,67 +323,15 @@ Use **standard markdown** (NOT Slack mrkdwn, NOT code blocks). The Slack MCP too
 
 > **QA READY → DONE**, not PROGRESS CHANGED — once dev work is done and it's handed to QA, it counts as done for the day.
 >
+> **Vinh is FE only — never put BE in his lines.** Vinh does not touch backend. Never write "BE contract questions", "API contract review", "confirmed with BE", or any BE ticket/ownership as his DONE/PLAN/BLOCKER work, even when he posted questions to a BE engineer in Slack. If a BE answer gates FE work, describe the FE side only ("Sessions card parked until the spec is confirmed") and do not name BE deliverables. Vinh's words, 2 Nov 2026: "i need i dont touch BE". Foundry (Temporal workers, BE repo) cards assigned to him — e.g. the Factory L4 handoff AIP-1283–AIP-1291 — stay out of the report too; he dropped them on 2 Nov 2026 ("drop it").
+>
 > **Linear statuses map the same way:** `QA Ready` / `Done` → DONE · `In Progress` / `In Review` → PROGRESS CHANGED · `Todo` (mine, starting today) → PLAN · `QA Failed` → PLAN as a re-fix with ETA.
 
 ---
 
-## Jira Worklog Log (time spent per ticket)
+## Jira worklogs — not here
 
-After the Slack report is sent, log **time spent on each ticket** in Jira — every ticket in the report (and every meeting) must have its hours booked so the day totals **8h**. This mirrors the `log-work` flow: **Calendar → Plan → Approve → Log**.
-
-**Default target dates:** yesterday (the report's DONE day) **and** today. Confirm scope with the user.
-
-### Step A: Gather time context
-
-1. **Calendar** — `mcp__claude_ai_Google_Calendar__list_events` for the target date (`startTime`/`endTime` in +07:00; do NOT pass `single_events` — that param is rejected). Capture each event's `summary`, `start`, `end`, duration, and your own `responseStatus`.
-2. **Existing worklogs** — fetch the candidate tickets with the `worklog` field and filter `.fields.worklog.worklogs[]` where `author.emailAddress == vinhtran@everfit.io` AND `started` falls on the target date. Skip anything already logged (avoid duplicates).
-3. **Git + Jira** — reuse the commits and assigned tickets already gathered in Steps 1–2 of the report.
-
-> JQL/issue results are often too large for one response — they get saved to a file. Use `jq` on the saved file to extract `key | status | timespent | worklog` instead of re-reading the whole thing.
-
-### Step B: Map to worklog tickets
-
-**General / meeting tickets** (per Vinh's worklog conventions — these override generic defaults):
-
-| Work type | Log to |
-|---|---|
-| AI DSU / AI standup / AI discussions / AI Weekly / AI release meetings | `AIT-710` |
-| Payment-team meetings (Sprint Review & Planning, Release meeting, Technical Discussion) | `PAY-2203` |
-| **Support review code (every weekday, 30m)** | `PAY-2203` |
-| Interviews, retros, intros, social events (Happy Hour, AI Hour) | `PAY-2203` |
-
-> ⛔ **NEVER log to `PAY-1466`** — despite the PAY key, it is the **Web Core Booking Team's** general card ("Booking feature preparation"); anything logged there rolls up under Booking. Vinh is off Booking work since Jul 2026. Also: **Vinh does not attend the Payment daily meeting — never log it**, even if it appears on the calendar.
-
-**Feature tickets** — log dev time directly on the AIT-/PAY- ticket worked that day (extract key from commit messages / branch name).
-
-**Linear cards (AIP-nnn)** have no Jira worklog. Log their time on the **parent Jira epic / story** the feature belongs to — CID v2 QA bugs → `AIT-5315` (or the specific AIT story if the bug is clearly inside one), Program Copilot / PTC bugs → `AIT-4886` — and list the AIP keys in the comment, e.g. `DEV - CID v2 QA 5 Oct: AIP-760/761/762/763 brief count, View all count, detail status, brief UI`.
-
-**Skip (never log):** Deep work blocks ("nín time"), all-day reminders, after-hours social/dine-out events, "Recheck Security", declined events.
-
-### Step C: Build the worklog plan
-
-1. Map each attended meeting → general ticket; duration = event length.
-2. Always add **`PAY-2203` 30m `DEV - Support review code`** for every weekday.
-3. Add **`AIT-710` 45m `DEV - AI DSU`** for every weekday — the DSU actually runs 08:45–09:30 (45m), even though the calendar block shows only 30m. Exception: no DSU on days AI Weekly replaces it (Wednesdays).
-4. `dev_hours_remaining = 8h − meetings − 30m review` (floor 0); assign to the day's feature ticket(s), weighted by commit count. Round to 15-min increments.
-5. Comment format: **`DEV - <concise, non-technical description>`**.
-
-Present the plan as a table (Time | Ticket | Status | Comment) with day total, and **wait for approval** before logging.
-
-### Step D: Execute worklogs
-
-For each approved row, call `mcp__claude_ai_Atlassian__addWorklogToJiraIssue`:
-- `cloudId`: `everfit.atlassian.net`
-- `issueIdOrKey`: ticket key
-- `timeSpent`: e.g. `"30m"`, `"1h"`, `"5h 45m"`
-- `started`: `YYYY-MM-DDT00:00:00.000+0700` (midnight of the target date)
-- `commentBody`: `DEV - <description>` (use `contentFormat: "markdown"`)
-
-Collect each returned `worklog.id`. If a call fails, **stop and report** — do not continue blindly. Warn before logging to `Done`/`Closed` tickets (some projects block it).
-
-### Step E: Confirm coverage
-
-Re-fetch affected tickets and report per-ticket `timespent` + day total. Each day must total **8h** — flag ⚠ if under/over. Repeat A–E for the next target date (today).
+Jira worklogs moved out of this command on 5 Nov 2026. Do **not** call `addWorklogToJiraIssue` from the daily report flow, and do not offer to. The Logwork bot runs `/log-work` (same toolkit repo, `templates/commands/log-work.md`): it audits the month through the Jira REST API, lists what is missing, and logs only after Vinh approves its plan. If Vinh asks the Report bot to "log work", point him to the Logwork bot.
 
 ---
 
