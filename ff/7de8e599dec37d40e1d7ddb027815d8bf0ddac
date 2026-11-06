@@ -1,0 +1,19 @@
+.mcp.json
+  s_ebab78b598edae::t_30c3e5cabb9aa9 5-8,11
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "ff7de8e599dec37d40e1d7ddb027815d8bf0ddac",
+  "prompts": {},
+  "sessions": {
+    "s_ebab78b598edae": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d9d1238a-cb9d-47ca-a526-128fe6cb60aa",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "VinhTran <vinhtran@everfit.io>"
+    }
+  }
+}
