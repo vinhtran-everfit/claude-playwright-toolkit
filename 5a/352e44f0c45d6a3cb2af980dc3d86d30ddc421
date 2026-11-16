@@ -1,0 +1,28 @@
+templates/commands/daily-report.md
+  s_52c27c3f6ed982::t_117c02b6235d83 7-9
+  s_4f6db1ff184a63::t_6f1693b9bbb3a8 15-19
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "5a352e44f0c45d6a3cb2af980dc3d86d30ddc421",
+  "prompts": {},
+  "sessions": {
+    "s_4f6db1ff184a63": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "60ac30b7-0825-4b57-9d5f-c0d41043f66a",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Vinh Tran <vinhtran@everfit.io>"
+    },
+    "s_52c27c3f6ed982": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "43312e7f-135c-437c-bba8-86c145a06bdc",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Vinh Tran <vinhtran@everfit.io>"
+    }
+  }
+}
