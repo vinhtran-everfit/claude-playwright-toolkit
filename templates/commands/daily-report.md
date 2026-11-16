@@ -4,11 +4,18 @@ Input: $ARGUMENTS (optional: notes about what you did/plan to do, or a Slack cha
 
 ## Instructions
 
-This flow: **Gather Git → Gather Jira → Check Calendar → Build Report → Preview to DM → Send to channel/thread → Log HRM Workload (today + tomorrow)**
+This flow: **Gather Git → Gather Jira → Check Calendar → Build Report → Preview to DM → Send to channel/thread**
+
+> **No HRM step** (Vinh, 16 Nov 2026: "remove HRM in process report, no need it"). The report flow ends at Step 5; never open HRM or log workload there.
 
 > **Jira worklogs are NOT part of this flow** (Vinh, 5 Nov 2026: "daily report not relates logwork, logwork should be another bot"). The report's `Spent` lines stay — managers read them — but nothing is logged to Jira here. The **Logwork bot** owns that with `/log-work`: it reads the whole month from Jira, finds the days that are missing or short, and plans what to log from the posted reports, calendar and git.
 
 > **Always check the calendar BEFORE estimating time.** The day is 8h. Meetings come off the top, and the remaining hours are what you split across tasks. Estimating ETAs without knowing the meeting load produces totals that don't add up to 8h — see Step 2.5 and the totals rules below.
+
+### Step 0: Memory and failures never block the report (Vinh, 11 Nov 2026)
+
+- Memory is optional. Run `~/.vimdevtool/harness/mem-probe.sh` first (it answers in about 12s at most). If it prints `MEM SKIP …`, make no role_memory or openmemory calls this run, and append each lesson as one line `<ISO time> [role_memory rep] <lesson>` to `~/.vimdevtool/memory.log`. If a memory call errors or hangs anyway, drop memory for the rest of the run.
+- Every step is best-effort. If a source fails (a Slack, Linear, Jira or Calendar tool, git, lint, `vdt report dm`), keep going with the sources you have. Write the reason as `"error"` + `"error_at"` in `~/.vimdevtool/slack-report.json` and as a `> ⚠ <reason>` line at the top of `reports/<date>.md`, outside the Slack text. Clear both after a clean run. Never end a run silently, and never DM only "could not generate".
 
 ### Step 1: Gather Git context
 
@@ -332,88 +339,3 @@ Use **standard markdown** (NOT Slack mrkdwn, NOT code blocks). The Slack MCP too
 ## Jira worklogs — not here
 
 Jira worklogs moved out of this command on 5 Nov 2026. Do **not** call `addWorklogToJiraIssue` from the daily report flow, and do not offer to. The Logwork bot runs `/log-work` (same toolkit repo, `templates/commands/log-work.md`): it audits the month through the Jira REST API, lists what is missing, and logs only after Vinh approves its plan. If Vinh asks the Report bot to "log work", point him to the Logwork bot.
-
----
-
-## HRM Workload Log
-
-After logging Jira worklogs, log the workload plan on the HRM system.
-
-### Step 6: Log today's workload on HRM
-
-1. **Navigate** to `https://hr.everfit.vn/dashboard` using Playwright MCP browser tools
-2. **Login** — click "Continue with Google" (auto-authenticates with vinhtran@everfit.io)
-3. **Go to Workload Logs** — click "Today's Workload" → "Plan your day" or navigate to `/workload-logs`
-4. **Select the correct date** — use the date navigation arrows or week overview buttons
-5. **Add entries** using Recent Tasks shortcuts or "+ Add Workload" button
-
-### Step 7: Log tomorrow's workload on HRM
-
-Repeat the same process for the next working day.
-
-### HRM Task Mapping
-
-Map the daily report teams/features to HRM task codes:
-
-| Daily Report Team + Feature | HRM Task Code | Typical Hours |
-|---|---|---|
-| :ai: AI Coach Dashboard | `[AI-207] Data Dashboard\| Financial Dashboard` | 7h |
-| :ai: AI Consolidate | `[AI-207] Data Dashboard\| Financial Dashboard` | (included in AI-207) |
-| :calendar: Booking — Video Call Link | `[PMT-97] CORE \| Booking \| P1.4 Video call link` | 1h |
-| :credit_card: Payment Team (review) | `[PMT-60] PAY \| Booking \| Session Credits P1` | 1h |
-| :credit_card: Payment Team (MacroSnap) | `[PMT-34] PAY \| MacroSnap Payment \| P1 Self-Serve Coach Subscriptions` | 1h |
-
-### HRM Note Format
-
-For each entry, write a plain-text note (max 500 chars) as a **list** with `- ` prefix. One task per line. Never write notes as a paragraph.
-
-**AI entry example:**
-```
-- Daily Meeting
-- AIT-3046 Continue AI Coach Dashboard UI - NotePanel positioning, habit signal updates
-- AIT-3047 Continue API integration - update task-habit response mapper
-- Support Automation Test for AI Coach Dashboard and AI consolidate
-- Update feedback from BA and Designer for new UI/API
-```
-
-**Booking entry example:**
-```
-- PAY-1851 Update UI Video Call Link on Session Type to latest design
-- PAY-1852 Update UI Video Call Link in Book Session flow to latest design
-```
-
-**Payment review entry example:**
-```
-- Review code for Payment team
-```
-
-### Backfill HRM from Slack (when logging past days)
-
-When logging HRM for days that were missed:
-1. Read the Slack daily report channel thread for each missing day
-2. Use "DONE YESTERDAY" from the NEXT day's report as the source of truth for what was actually done
-3. Extract Jira ticket numbers and descriptions from the report
-4. Map to HRM tasks using the task mapping table above
-5. Default split: AI-207 (7h) + 1h other (PMT-97 for booking work, PMT-60 for review code)
-6. If no specific booking work that day, use PMT-60 (review code) for the 1h slot
-
-### HRM Interaction Steps (Playwright)
-
-1. `browser_navigate` to `https://hr.everfit.vn/dashboard`
-2. `browser_click` "Continue with Google" button (if on login page)
-3. Wait for redirect to `/dashboard`
-4. `browser_click` "Today's Workload" link → goes to `/workload-logs`
-5. Navigate to target date using arrow buttons or week day buttons
-6. Click a Recent Task button (e.g., `[AI-207] Data Dashboard| Fi...`) to add entry
-7. Use `browser_fill_form` to set Hours and Note fields
-8. Click another Recent Task to add second entry
-9. Use `browser_fill_form` for second entry's Hours and Note
-10. `browser_click` "Save" button
-11. Verify "Workload plan saved successfully" toast message
-12. Repeat steps 5-11 for the next day
-
-### Total Hours Target
-
-Each day should total **8.00 hours**. Typical split:
-- AI Team work: 7h
-- Booking / Payment: 1h
