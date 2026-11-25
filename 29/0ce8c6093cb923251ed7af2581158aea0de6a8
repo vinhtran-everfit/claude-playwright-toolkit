@@ -1,0 +1,19 @@
+templates/commands/daily-report.md
+  s_992b003fd7d196::t_fa6a7d9571e928 1-4
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "290ce8c6093cb923251ed7af2581158aea0de6a8",
+  "prompts": {},
+  "sessions": {
+    "s_992b003fd7d196": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "a3e97514-883e-49cd-9beb-25439fdd957a",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Vinh Tran <vinhtran@everfit.io>"
+    }
+  }
+}
