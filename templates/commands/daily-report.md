@@ -1,3 +1,7 @@
+---
+description: Generate and send a daily standup report to Slack.
+model: opus
+---
 Generate and send a daily standup report to Slack.
 
 Input: $ARGUMENTS (optional: notes about what you did/plan to do, or a Slack channel name to send to)
